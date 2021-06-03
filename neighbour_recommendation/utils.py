@@ -33,3 +33,17 @@ def get_rank(G, idx, method, neighbours):
         return indegree_dict
     else:
         raise ValueError("Invalid method!")
+
+
+# YifanLu Here
+def build_dict():
+    comm = np.load("../data/community.npy")
+    node2comm = dict(zip(comm[:, 0], comm[:, 1])) # map node id to comm id
+    np.save("../data/node2comm",node2comm)
+
+    comm2node = defaultdict(list)
+    for node,comm in comm2node.items():
+        comm2node[comm].append(node)
+    np.save("../data/comm2node",comm2node)
+
+    
