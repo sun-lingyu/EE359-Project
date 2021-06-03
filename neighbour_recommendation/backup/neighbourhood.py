@@ -4,7 +4,6 @@ import matplotlib.pyplot as plt
 from utils import get_cluster, get_rank
 import time
 import pickle as pkl
-from utils import get_cluster,get_rank
 
 
 def ppr_neighbour(G, idx, threshold):
@@ -29,8 +28,6 @@ def ppr_neighbour(G, idx, threshold):
     A=set()
     Cut = 0
     Vol = 0
-    threshold = 10  # Need to be modified!(Too sensitive!)
-    curr = 0
     #conductance_list = []
     conductance = pre_conductance = float("inf")
     for node in res:
@@ -43,9 +40,7 @@ def ppr_neighbour(G, idx, threshold):
                 Cut -= 2 * G[node][neighbour]['weight']
         conductance = Cut / Vol
         if (pre_conductance < conductance):
-            curr += 1
-            if (curr == threshold):
-                break
+            break
         #conductance_list.append(conductance)
         pre_conductance = conductance
     '''plt.plot(conductance_list)
@@ -85,6 +80,13 @@ def get_recommended(G, num, neighbours, idx, clusterid, method="indegree", dista
     # Compute rank of all neighbours
     rank = get_rank(G, idx, method, neighbours)
 
+    # Case: Target cluster is questioner's cluster
+    # Recommend only based on rank
+    '''if (clusterid == mycluster):
+        sorted_rank = sorted(rank.items(), key = lambda kv:(kv[1], kv[0]), reverse=True)
+        return [item[0] for item in sorted_rank[:num]]'''
+    
+    # Case: Target cluster is **not** questioner's cluster
     # Recommend based on rank and shortest path
 
     # First check: is there any neighbours lying in target cluster
@@ -95,16 +97,17 @@ def get_recommended(G, num, neighbours, idx, clusterid, method="indegree", dista
             target_nodes.append(neighbour)
         else:
             other_nodes.append(neighbour)
+
     # Get sorted rank of all target_nodes
     target_rank = {key: rank.get(key) for key in target_nodes}
     sorted_target_rank = sorted(target_rank.items(), key = lambda kv:(kv[1], kv[0]), reverse=True)
-    print(target_nodes)
+    
     # If having enough nodes in target cluster
     if (len(target_nodes) >= num):
-        return [item for item in sorted_target_rank[:num]]
+        return [item[0] for item in sorted_target_rank[:num]]
 
     # Otherwise
-    result = [item for item in sorted_target_rank]
+    result = [item[0] for item in sorted_target_rank]
     num_left = num - len(result)
 
     def search_for_cluster(children,clusterid):
@@ -125,9 +128,9 @@ def get_recommended(G, num, neighbours, idx, clusterid, method="indegree", dista
                 break
         else:
             distance_list[-1].append(node)
-    print(distance_list)
+    
     for i in range(distance_limit):
-        target_rank = {key: rank.get(key) for key in distance_list[i]}
+        target_rank = {key: rank.get(key) for key in distance_limit[i]}
         sorted_target_rank = sorted(target_rank.items(), key=lambda kv: (kv[1], kv[0]), reverse=True)
         result += sorted_target_rank[:num_left]
         if (len(result) == num):
@@ -140,14 +143,20 @@ def get_recommended(G, num, neighbours, idx, clusterid, method="indegree", dista
 
 
 if __name__ == '__main__':
+    '''G = nx.MultiDiGraph()
+    G.add_nodes_from([1, 2, 3, 4])
+    G.add_edges_from([(1, 2, dict(weight=1)), (1, 2, dict(weight=2))\
+                    , (1, 3, dict(weight=3)), (2, 3, dict(weight=1)) \
+                    , (3, 4, dict(weight=2))])'''
+    '''print(G[1])
+    nx.draw(G, with_labels=True, font_weight='bold')
+    plt.show()'''
     print("Loading graph...")
     start = time.time()
     G = nx.read_gpickle("../data/weight_graph_di.pickle")
     print(f"Graph loaded in {time.time() - start:.2f} s.")
 
-    idx = 1000
-    clusterid = get_cluster(G,idx)
-    print("clusterid: ",clusterid)
+    idx = 1
 
     # Convert a MultiDiGraph to DiGraph.
     # This sentence do not sum the weights of multiple edges.
@@ -165,15 +174,11 @@ if __name__ == '__main__':
     print(f"Neighbours found in {time.time() - start:.2f} s.")
     print(f"{len(neighbours)} neighbours found.")
     with open("tmp.pkl", 'wb') as f:
-        pkl.dump(neighbours,f)
-    exit()'''
+        pkl.dump(neighbours,f)'''
+
     with open("tmp.pkl", 'rb') as f:
         neighbours = pkl.load(f)
-
-    while (True):
-        clusterid = int(input("Please Input Cluster id:"))
-        print("Get recommendations...")
-        start = time.time()
-        recommend = get_recommended(G, num=3, neighbours=neighbours, idx=idx, clusterid=clusterid, method="indegree")
-        print(recommend)
-        print(f"Recommendations got in {time.time() - start:.2f} s.")
+    print("Get recommendations...")
+    start = time.time()
+    get_recommended(G, num=2, neighbours=neighbours, idx=idx, clusterid=1, method="indegree")
+    print(f"Recommendations got in {time.time() - start:.2f} s.")

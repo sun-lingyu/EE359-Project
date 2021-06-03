@@ -5,7 +5,7 @@ if __name__ == '__main__':
     questions_file = sys.argv[1]
     answers_file = sys.argv[2]
     
-    save_file = open("./result/qa.csv", "w")
+    save_file = open("../data/qa.csv", "w")
     sys.stdout = save_file
 
     af = open(answers_file, "r")

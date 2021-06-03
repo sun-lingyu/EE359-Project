@@ -7,8 +7,8 @@ import networkx as nx
 if __name__ == "__main__":
     print("Loading graph...")
     start = time.time()
-    OriginalGraph = nx.read_gpickle("./result/qa_graph.pickle")
-    WeightedGraph = nx.read_gpickle("./result/weight_graph.pickle")
+    OriginalGraph = nx.read_gpickle("../data/qa_graph.pickle")
+    WeightedGraph = nx.read_gpickle("../data/weight_graph.pickle")
     print(f"Graph loaded in {time.time() - start:.2f} s.")
 
     print(f"Current number of nodes: {OriginalGraph.number_of_nodes()}")
@@ -16,7 +16,7 @@ if __name__ == "__main__":
 
     print("Loading communities...")
     start = time.time()
-    comm = np.load("./result/community.npy")
+    comm = np.load("../data/community.npy")
     comm_dict = dict(zip(comm[:, 0], comm[:, 1]))
     comm_unique, comm_cnt = np.unique(comm[:, 1], return_counts=True)
     comm_cnt_dict = dict(zip(comm_unique, comm_cnt))

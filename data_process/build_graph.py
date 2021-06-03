@@ -55,19 +55,19 @@ def build_graph(qa_file_path, max_edge_num=None):
 
 
 if __name__ == "__main__":
-    if os.path.exists("./result/qa_graph.pickle"):
+    if os.path.exists("../data/qa_graph.pickle"):
         print("Loading graph...")
         start = time.time()
-        OG = nx.read_gpickle("./result/qa_graph.pickle")
-        WG = nx.read_gpickle("./result/weight_graph.pickle")
+        OG = nx.read_gpickle("../data/qa_graph.pickle")
+        WG = nx.read_gpickle("../data/weight_graph.pickle")
         print(f"Graph loaded in {time.time() - start:.2f} s.")
     else:
-        OG, WG = build_graph("./result/qa.csv")
+        OG, WG = build_graph("../data/qa.csv")
 
         print("Saving graph...")
         start = time.time()
-        nx.write_gpickle(OG, "./result/qa_graph.pickle")
-        nx.write_gpickle(WG, "./result/weight_graph.pickle")
+        nx.write_gpickle(OG, "../data/qa_graph.pickle")
+        nx.write_gpickle(WG, "../data/weight_graph.pickle")
         print(f"Graph saved in {time.time() - start:.2f} s.")
 
     print(f"Current number of nodes: {OG.number_of_nodes()}")
@@ -76,7 +76,7 @@ if __name__ == "__main__":
     print("Performing Louvain algorithm on graph...")
     partition = community_louvain.best_partition(WG)
     partition = np.array(list(partition.items()))
-    np.save("./result/community.npy", partition)
+    np.save("../data/community.npy", partition)
     print(f"Louvain completed in {time.time() - start:.2f} s.")
 
     """
