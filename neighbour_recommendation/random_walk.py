@@ -1,7 +1,6 @@
 from numpy.random import choice
 
-
-def biased_random_walk(G, idx, threshold=None):
+def biased_random_walk(G, idx):
     '''
     Calculate neighbours based on biased random walk.
     G: Input Graph

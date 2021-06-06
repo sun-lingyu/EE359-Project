@@ -16,8 +16,6 @@ def _load_comm(filename):
         return comm_dict[idx]
     return inner
 
-get_cluster = _load_comm("../data/community.npy")
-
 def get_rank(G, idx, method, neighbours):
     '''
     Interface function.

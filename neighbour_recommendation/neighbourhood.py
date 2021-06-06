@@ -1,11 +1,11 @@
 import networkx as nx
 from networkx.algorithms.link_analysis.pagerank_alg import pagerank
 import matplotlib.pyplot as plt
-from utils import get_cluster, get_rank
+from .utils import _load_comm, get_rank
 import time
 import pickle as pkl
-from utils import get_cluster,get_rank
 
+get_cluster = _load_comm("./data/community.npy")
 
 def ppr_neighbour(G, idx, threshold):
     '''
@@ -98,7 +98,7 @@ def get_recommended(G, num, neighbours, idx, clusterid, method="indegree", dista
     # Get sorted rank of all target_nodes
     target_rank = {key: rank.get(key) for key in target_nodes}
     sorted_target_rank = sorted(target_rank.items(), key = lambda kv:(kv[1], kv[0]), reverse=True)
-    print(target_nodes)
+    #print(target_nodes)
     # If having enough nodes in target cluster
     if (len(target_nodes) >= num):
         return [item for item in sorted_target_rank[:num]]
@@ -125,7 +125,7 @@ def get_recommended(G, num, neighbours, idx, clusterid, method="indegree", dista
                 break
         else:
             distance_list[-1].append(node)
-    print(distance_list)
+    #print(distance_list)
     for i in range(distance_limit):
         target_rank = {key: rank.get(key) for key in distance_list[i]}
         sorted_target_rank = sorted(target_rank.items(), key=lambda kv: (kv[1], kv[0]), reverse=True)
