@@ -1,37 +1,36 @@
 import time
 import networkx as nx
 import numpy as np
-from neighbour_recommendation.utils import _load_comm
-from neighbour_recommendation.neighbourhood import get_recommended
-from neighbour_recommendation.random_walk import biased_random_walk
-from neighbour_recommendation.calc_global_pr import calc_global_pr
+from recommendation.neighbourhood import get_recommended
+from recommendation.random_walk import biased_random_walk
+from recommendation.calc_global_pr import calc_global_pr
 
+Neighbouring_recommendations_for_each_tag = 5
+Distance_limit = 3
 
+# Load Graph
 start = time.time()
-# G = nx.read_gpickle("./data/weight_graph_di.pickle")
-G = nx.read_gpickle("./data/weight_graph_di_py37.pickle")
+G = nx.read_gpickle("./data/weight_graph_di.pickle")
 print(f"Graph loaded in {time.time() - start:.2f} s.")
 
+# Load Tag-to-Community Info
 with open("./data/tag2comm.npy","rb") as f:
-    cluster_info = np.load(f,allow_pickle=True).tolist()
+    comm_info = np.load(f, allow_pickle=True).tolist()
+    
+# Load Node-to-Community Info
+comm = np.load("./data/community.npy")
+comm_dict = dict(zip(comm[:, 0], comm[:, 1]))
 
-get_cluster = _load_comm("./data/community.npy")
-
+# Loop for Query
 while (True):
-    #try:
+
     #userid = int(input("Please enter user id: "))
     #tags = input("Please enter tags(space splitted): ").split()
     userid = 999
     tags = ["java", "python"]
     in_graph = False
 
-    # Check whether in graph
-    if (G.has_node(userid)):
-        # Get neighbours
-        neighbours = biased_random_walk(G, userid)
-        in_graph = True
-
-
+    # Global recommendation
     print("Get global recommendations:")
     start = time.time()
     pr_list = calc_global_pr(tags)
@@ -39,29 +38,50 @@ while (True):
         print(f"\tUser ID: {user_id}, Score: {user_score}, in community {user_comm} with tag score {comm_target_tag_score}")
     print(f"Global recommendations got in {time.time() - start:.2f} s.")
 
-
-    # Get recommendation for each tag
-    for tag in tags:
-        clusterid = cluster_info[tag]
-
-        print("Get neighboring recommendations...")
-        start = time.time()
-        """
-        # Get Global recommendation
-        comm_file_name ="./data/comm_pr/{}.npy".format(clusterid)
-        pagerank = np.load(comm_file_name, allow_pickle=True).item()
-        pagerank_list = sorted(pagerank.items(), key=lambda kv: (kv[1], kv[0]), reverse=True)[:10]
-        recommend_global = [kv[0] for kv in pagerank_list]
-        print("Global recommendations: ", recommend_global)
-        """
-
-        if in_graph:
-        # Get neighbouring recommendations
-            recommend_neighbour = get_recommended(G, num=10, neighbours=neighbours, idx=userid, clusterid=clusterid, method="indegree", distance_limit=3)
-            print(f"Neighboring recommendations got in {time.time() - start:.2f} s.")
-            print("Neighbouring recommendations: ", recommend_neighbour)
-        
-        
+    # Check whether in graph
+    if (not G.has_node(userid)):
+        # If not in Graph, do not give neibouring recommendations
+        print("No Neighbouring recommendations...")
         input("Continue?")
-    '''except Exception as e:
-        print(e)'''
+        continue
+
+    # Get neighbors using biased_random_walk.
+    start = time.time()
+    print("Get neighboring recommendations...")
+    neighbours = biased_random_walk(G, userid)
+
+    recommend_tags = []
+    # Get recommendation for each tag
+    for i, tag in enumerate(tags):
+        commid = comm_info[tag]
+        # Get neighbouring recommendations
+        recommend_tags.append(get_recommended(G, num=Neighbouring_recommendations_for_each_tag, neighbours=neighbours, idx=userid, commid=commid, comm_dict=comm_dict, method="indegree", distance_limit=Distance_limit))
+
+    # Combine neighbouring recommendations for all tags:
+    recommend_neighbour = {}
+    # recommend_neighbour: anordered dict, used as ordered set. (Since set in python is unordered.)
+    # Each element of recommend_neighbour represents a person. It is an ordered set(implemented as an ordered dict) of tags.
+    for i in range(Neighbouring_recommendations_for_each_tag):
+        for j, tag in enumerate(tags):
+            recommendation, score, distance = recommend_tags[j][i]
+            if (recommendation not in recommend_neighbour):
+                if(distance == Distance_limit):
+                    recommend_neighbour[recommendation] = {} # too far away from target tag. So do not need to remember the tag.
+                else:
+                    recommend_neighbour[recommendation] = {tag: 1}  # remember the tag of the recommendation.
+            else:
+                if (distance == Distance_limit): # too far away from target tag. So do not need to remember the tag.
+                    continue
+                else:
+                    recommend_neighbour[recommendation][tag] = 1  # remember the tag of the recommendation.
+
+    for recommendation, tags in recommend_neighbour.items():
+        if (tags == {}):
+            print(f"\tUser ID: {recommendation}")
+        else:
+            print(f"\tUser ID: {recommendation}, Recommend based on {tags.keys()}")
+    print(f"Neighboring recommendations got in {time.time() - start:.2f} s.")
+    
+    
+    
+    input("Continue?")
