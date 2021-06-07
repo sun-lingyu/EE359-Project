@@ -45,6 +45,7 @@ def biased_random_walk(G, idx):
         if prob<remake_prob or step % 5 == 4:
             walk.append(start_node)
             walk.append(choice(start_node_neighbor))
+            
     return list(set(walk)-set([start_node]))
 
 if __name__=="__main__":
