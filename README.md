@@ -23,9 +23,9 @@ Node index 1000, cluster index 5, 99 and 10.
 ![local recommendations](neighbour_recommendation/result/cluster5+99+10.png)
 
 ## TODO
-~~1. improve BFS time~~
-~~2. change PPR to random walk~~
-~~3. vote to determine tags of clusters~~
-4. test and experiments
-5. report
-6. reduce randomness of random walk
+~~1. improve BFS time~~  
+~~2. change PPR to random walk~~  
+~~3. vote to determine tags of clusters~~  
+4. test and experiments  
+5. report  
+6. reduce randomness of random walk  
