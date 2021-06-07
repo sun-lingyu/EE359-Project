@@ -57,7 +57,7 @@ def get_recommended(G, num, neighbours, idx, commid, comm_dict, method="indegree
 
     # If having enough nodes in target_nodes
     if (len(target_nodes) >= num):
-        return [item for item in sorted_target_rank[:num]]
+        return [(*item,-1) for item in sorted_target_rank[:num]]
 
     # Otherwise
     # Do BFS to get the distance of each node in other_nodes toward target comm.
@@ -90,6 +90,7 @@ def get_recommended(G, num, neighbours, idx, commid, comm_dict, method="indegree
         if (len(result) == num):
             break
         num_left = num - len(result)
+    # print("get recommend:",result)
     return result
 
 if __name__ == '__main__':
