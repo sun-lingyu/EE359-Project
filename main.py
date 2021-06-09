@@ -26,16 +26,16 @@ while (True):
 
     #userid = int(input("Please enter user id: "))
     #tags = input("Please enter tags(space splitted): ").split()
-    userid = 999
-    tags = ["java", "python"]
+    userid = 744
+    tags = ["google-vr", "unity3d"]
     in_graph = False
 
-    # Global recommendation
+    # Global recommendation、
     print("Get global recommendations:")
     start = time.time()
     pr_list = calc_global_pr(tags)
-    for user_id, user_score, user_comm, comm_target_tag_score in pr_list:
-        print(f"\tUser ID: {user_id}, Score: {user_score}, in community {user_comm} with tag score {comm_target_tag_score}")
+    for user_id, user_comm, user_score, comm_target_tag_score in pr_list:
+        print(f"\tUser ID: {user_id:>7.0f}, Score: {user_score:.6f}, in community {user_comm:>4.0f} with tag score {comm_target_tag_score:.6f}")
     print(f"Global recommendations got in {time.time() - start:.2f} s.")
 
     # Check whether in graph
@@ -81,7 +81,5 @@ while (True):
         else:
             print(f"\tUser ID: {recommendation}, Recommend based on {tags.keys()}")
     print(f"Neighboring recommendations got in {time.time() - start:.2f} s.")
-    
-    
     
     input("Continue?")
