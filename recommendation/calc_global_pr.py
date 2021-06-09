@@ -44,8 +44,7 @@ def calc_global_pr(target_tag_list, recommend_num=10):
 
     s = time.time(); print("Start calculating weighted PR score")
     tag_score = comm_target_tag_score[pr_score[:, 1]]
-    print(pr_score.shape, tag_score.shape)
-    pr_score = np.hstack([pr_score, tag_score[:, np.newaxis]])
+    pr_score = np.hstack([pr_score, tag_score.values[:, np.newaxis]])
     pr_score[:, 2] *= pr_score[:, 3]
     pr_score = pr_score.tolist()
     t = time.time() - s; print(f"Comsuming: {t:.4f} s")

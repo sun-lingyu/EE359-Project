@@ -30,6 +30,9 @@ while (True):
     tags = ["google-vr", "unity3d"]
     in_graph = False
 
+    print(f"User id: {userid}")
+    print(f"Question Tags:{tags}")
+
     # Global recommendation、
     print("Get global recommendations:")
     start = time.time()
@@ -79,7 +82,7 @@ while (True):
         if (tags == {}):
             print(f"\tUser ID: {recommendation}")
         else:
-            print(f"\tUser ID: {recommendation}, Recommend based on {tags.keys()}")
+            print(f"\tUser ID: {recommendation}, Recommend based on {list(tags.keys())}")
     print(f"Neighboring recommendations got in {time.time() - start:.2f} s.")
     
     input("Continue?")
